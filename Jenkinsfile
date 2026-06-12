@@ -1,28 +1,17 @@
+@Library('shared-library') _
+
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Run Shared Library') {
             steps {
-                echo 'Building Docker Image...'
-                sh 'docker build -t myapp:latest .'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing the application...'
-                sh 'docker run --rm myapp:latest'
-            }
-        }
-        stage('Deploy to Kubernetes') {
-            steps {
-                echo 'Deploying to Kubernetes...'
-                sh 'kubectl apply -f deployment.yaml'
+                buildApp()
             }
         }
     }
     post {
         success {
-            echo 'Pipeline Success! App deployed to Kubernetes!'
+            echo 'Pipeline Success using Shared Library!'
         }
         failure {
             echo 'Pipeline Failed! Check the logs!'
