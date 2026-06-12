@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building the application...'
+                echo 'Building Docker Image...'
                 sh 'docker build -t myapp:latest .'
             }
         }
@@ -13,16 +13,16 @@ pipeline {
                 sh 'docker run --rm myapp:latest'
             }
         }
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Deploying the application...'
-                sh 'docker run -d --name myapp-container myapp:latest'
+                echo 'Deploying to Kubernetes...'
+                sh 'kubectl apply -f deployment.yaml'
             }
         }
     }
     post {
         success {
-            echo 'Pipeline Success! Docker container deployed!'
+            echo 'Pipeline Success! App deployed to Kubernetes!'
         }
         failure {
             echo 'Pipeline Failed! Check the logs!'
