@@ -3,32 +3,29 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Build stage started...'
-                sh 'mkdir -p myapp && echo "App code here" > myapp/app.txt'
-                echo 'Build stage completed!'
+                echo 'Building the application...'
+                sh 'docker build -t myapp:latest .'
             }
         }
         stage('Test') {
             steps {
-                echo 'Test stage started...'
-                sh 'cat myapp/app.txt'
-                echo 'All tests passed!'
+                echo 'Testing the application...'
+                sh 'docker run --rm myapp:latest'
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploy stage started...'
-                sh 'cp myapp/app.txt /tmp/deployed-app.txt'
-                echo 'Application deployed successfully!'
+                echo 'Deploying the application...'
+                sh 'docker run -d --name myapp-container myapp:latest'
             }
         }
     }
     post {
         success {
-            echo 'PIPELINE SUCCESS! Application deployed!'
+            echo 'Pipeline Success! Docker container deployed!'
         }
         failure {
-            echo 'PIPELINE FAILED! Check the logs!'
+            echo 'Pipeline Failed! Check the logs!'
         }
     }
 }
