@@ -1,7 +1,7 @@
 @Library('shared-library') _
 
 pipeline {
-    agent any
+    agent { label 'my-agent' }
     stages {
         stage('Run Shared Library') {
             steps {
@@ -11,7 +11,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline Success using Shared Library!'
+            echo 'Pipeline Success on my-agent!'
         }
         failure {
             echo 'Pipeline Failed! Check the logs!'
