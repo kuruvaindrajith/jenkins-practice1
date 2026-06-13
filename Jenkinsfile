@@ -1,20 +1,18 @@
-@Library('shared-library') _
-
 pipeline {
-    agent { label 'my-agent' }
+    agent any
     stages {
-        stage('Run Shared Library') {
+        stage('Use Credentials') {
             steps {
-                buildApp()
+                withCredentials([string(credentialsId: 'my-secret-password', variable: 'MY_PASSWORD')]) {
+                    sh 'echo "Password is: $MY_PASSWORD"'
+                    sh 'echo "Password hidden in logs!"'
+                }
             }
         }
     }
     post {
         success {
-            echo 'Pipeline Success on my-agent!'
-        }
-        failure {
-            echo 'Pipeline Failed! Check the logs!'
+            echo 'Credentials Pipeline Success!'
         }
     }
 }
