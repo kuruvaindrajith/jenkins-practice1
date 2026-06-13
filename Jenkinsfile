@@ -11,7 +11,7 @@ pipeline {
                 withSonarQubeEnv('sonarqube-server') {
                     sh '''
                         docker run --rm \
-                        -e SONAR_HOST_URL=http://localhost:9000 \
+                        -e SONAR_HOST_URL=http://172.31.80.159:9000 \
                         -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
                         -v $(pwd):/usr/src \
                         sonarsource/sonar-scanner-cli \
