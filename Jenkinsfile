@@ -14,6 +14,7 @@ pipeline {
                 -e SONAR_HOST_URL=http://172.31.80.159:9000 \
                 -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
                 -v $(pwd):/usr/src \
+                -v $(pwd)/.scannerwork:/usr/src/.scannerwork \
                 sonarsource/sonar-scanner-cli \
                 -Dsonar.projectKey=jenkins-practice \
                 -Dsonar.sources=.
