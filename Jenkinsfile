@@ -6,29 +6,31 @@ pipeline {
                 echo 'Building the application...'
             }
         }
-        stage('Approval') {
+        stage('Test') {
             steps {
-                input message: 'Deploy to production?', ok: 'Yes, Deploy!'
+                echo 'Testing the application...'
             }
         }
         stage('Deploy') {
-            options {
-                timeout(time: 5, unit: 'MINUTES')
-                retry(3)
-            }
             steps {
                 echo 'Deploying the application...'
-                sh 'sleep 2'
-                echo 'Deploy successful!'
             }
         }
     }
     post {
         success {
-            echo 'Pipeline Success!'
+            emailext(
+                subject: "Pipeline SUCCESS: ${env.JOB_NAME}",
+                body: "Pipeline ${env.JOB_NAME} - Build #${env.BUILD_NUMBER} succeeded!",
+                to: 'your-email@gmail.com'
+            )
         }
         failure {
-            echo 'Pipeline Failed or Timed out!'
+            emailext(
+                subject: "Pipeline FAILED: ${env.JOB_NAME}",
+                body: "Pipeline ${env.JOB_NAME} - Build #${env.BUILD_NUMBER} failed! Check logs!",
+                to: 'your-email@gmail.com'
+            )
         }
     }
 }
