@@ -9,17 +9,10 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
-                    sh '''
-                        docker run --rm \
-                        -e SONAR_HOST_URL=http://172.31.80.159:9000 \
-                        -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
-                        -v $(pwd):/usr/src \
-                        sonarsource/sonar-scanner-cli \
+                    sh "${tool 'sonar-scanner'}/bin/sonar-scanner \
                         -Dsonar.projectKey=jenkins-practice \
-                        -Dsonar.sources=.
-                    '''
+                        -Dsonar.sources=."
                 }
-                echo 'SonarQube Analysis Complete — Check dashboard for results!'
             }
         }
         stage('Deploy') {
@@ -30,7 +23,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline Success — SonarQube Analysis Done!'
+            echo 'Pipeline Success!'
         }
         failure {
             echo 'Pipeline Failed!'
