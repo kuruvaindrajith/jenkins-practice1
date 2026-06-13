@@ -7,20 +7,22 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonarqube-server') {
-                    sh '''
-                        docker run --rm \
-                        -e SONAR_HOST_URL=http://172.31.80.159:9000 \
-                        -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
-                        -v $(pwd):/usr/src \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=jenkins-practice \
-                        -Dsonar.sources=.
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('sonarqube-server') {
+            sh '''
+                docker run --rm \
+                -e SONAR_HOST_URL=http://172.31.80.159:9000 \
+                -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
+                -v $(pwd):/usr/src \
+                -v $(pwd)/.sonar:/root/.sonar \
+                sonarsource/sonar-scanner-cli \
+                -Dsonar.projectKey=jenkins-practice \
+                -Dsonar.sources=. \
+                -Dsonar.working.directory=/usr/src/.scannerwork
+            '''
         }
+    }
+}
         stage('Quality Gate') {
             steps {
                 waitForQualityGate abortPipeline: true
