@@ -1,60 +1,34 @@
 pipeline {
     agent any
-    
-    parameters {
-        string(name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Deploy to which environment?')
-        choice(name: 'BUILD_TYPE', choices: ['build', 'test', 'deploy'], description: 'What to run?')
-    }
-    
-    environment {
-        APP_NAME = 'myapp'
-        VERSION = '1.0.0'
-    }
-    
     stages {
         stage('Build') {
-            when {
-                expression { params.BUILD_TYPE == 'build' || params.BUILD_TYPE == 'deploy' }
-            }
             steps {
-                echo "Building ${env.APP_NAME} version ${env.VERSION}"
-                echo "Environment: ${params.ENVIRONMENT}"
+                echo 'Building the application...'
             }
         }
-        stage('Test') {
-            when {
-                expression { params.BUILD_TYPE == 'test' || params.BUILD_TYPE == 'deploy' }
-            }
+        stage('Approval') {
             steps {
-                echo "Testing ${env.APP_NAME}..."
-            }
-        }
-        stage('Parallel Stage') {
-            parallel {
-                stage('Unit Test') {
-                    steps {
-                        echo 'Running Unit Tests...'
-                    }
-                }
-                stage('Integration Test') {
-                    steps {
-                        echo 'Running Integration Tests...'
-                    }
-                }
+                input message: 'Deploy to production?', ok: 'Yes, Deploy!'
             }
         }
         stage('Deploy') {
-            when {
-                expression { params.BUILD_TYPE == 'deploy' }
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+                retry(3)
             }
             steps {
-                echo "Deploying ${env.APP_NAME} to ${params.ENVIRONMENT}..."
+                echo 'Deploying the application...'
+                sh 'sleep 2'
+                echo 'Deploy successful!'
             }
         }
     }
     post {
         success {
             echo 'Pipeline Success!'
+        }
+        failure {
+            echo 'Pipeline Failed or Timed out!'
         }
     }
 }
