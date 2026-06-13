@@ -6,9 +6,24 @@ pipeline {
                 echo 'Building the application...'
             }
         }
-        stage('Test') {
+        stage('SonarQube Analysis') {
             steps {
-                echo 'Testing the application...'
+                withSonarQubeEnv('sonarqube-server') {
+                    sh '''
+                        docker run --rm \
+                        -e SONAR_HOST_URL=http://localhost:9000 \
+                        -e SONAR_TOKEN=$SONAR_AUTH_TOKEN \
+                        -v $(pwd):/usr/src \
+                        sonarsource/sonar-scanner-cli \
+                        -Dsonar.projectKey=jenkins-practice \
+                        -Dsonar.sources=.
+                    '''
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                waitForQualityGate abortPipeline: true
             }
         }
         stage('Deploy') {
@@ -19,18 +34,10 @@ pipeline {
     }
     post {
         success {
-            emailext(
-                subject: "Pipeline SUCCESS: ${env.JOB_NAME}",
-                body: "Pipeline ${env.JOB_NAME} - Build #${env.BUILD_NUMBER} succeeded!",
-                to: 'kuruvaindrajith@gmail.com'
-            )
+            echo 'Pipeline Success — Quality Gate Passed!'
         }
         failure {
-            emailext(
-                subject: "Pipeline FAILED: ${env.JOB_NAME}",
-                body: "Pipeline ${env.JOB_NAME} - Build #${env.BUILD_NUMBER} failed! Check logs!",
-                to: 'kuruvaindrajith@gmail.com'
-            )
+            echo 'Pipeline Failed — Quality Gate Failed!'
         }
     }
 }
